@@ -16,6 +16,7 @@ import { useEffect } from 'react';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { ConvexProvider, ConvexReactClient } from "convex/react"
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
 export {
@@ -66,19 +67,21 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ConvexProvider client={convex}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="access_control" options={{ headerShown: false }} />
-          {/* <Stack.Screen name="main" options={{ headerShown: false }} /> */}
-          <Stack.Screen name="operations" options={{ presentation: "modal", headerShown: false }} />
-          <Stack.Screen name="event" options={{ presentation: "modal", headerShown: false }} />
-         <Stack.Screen name="(general)" options={{ headerShown: false}}/> 
-        </Stack>
-      </ThemeProvider>
-    </ConvexProvider>
+    <GestureHandlerRootView>
+      <ConvexProvider client={convex}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="access_control" options={{ headerShown: false }} />
+            {/* <Stack.Screen name="main" options={{ headerShown: false }} /> */}
+            <Stack.Screen name="operations" options={{ presentation: "modal", headerShown: false }} />
+            <Stack.Screen name="event" options={{ presentation: "modal", headerShown: false }} />
+            <Stack.Screen name="(general)" options={{ headerShown: false }} />
+          </Stack>
+        </ThemeProvider>
+      </ConvexProvider>
+    </GestureHandlerRootView>
   );
 }

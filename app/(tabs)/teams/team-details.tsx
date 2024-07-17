@@ -1,22 +1,23 @@
 import { View, StyleSheet, Pressable, ScrollView } from "react-native"
 import { Text } from "@/components/Themed"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Audio } from "expo-av"
 import { MaterialIcons } from "@expo/vector-icons"
 import { api } from "@/convex/_generated/api"
 import { useQuery } from "convex/react"
 import { useLocalSearchParams } from "expo-router"
+import { SoundObject } from "expo-av/build/Audio"
 
 export default function TeamDetails() {
 
-    const local = useLocalSearchParams<{teamId: string}>()
+    const local = useLocalSearchParams<{ teamId: string }>()
 
     const [details, setDetails] = useState<Array<any> | undefined>()
 
     const _teamDetails = useQuery(api.teamEvents.get)
     const teams = useQuery(api.teams.get)
 
-    const teamDetails = _teamDetails?.filter(details=>details.teams?.find((team)=>team==local.teamId))
+    const teamDetails = _teamDetails?.filter(details => details.teams?.find((team) => team == local.teamId))
 
     console.log(_teamDetails)
     console.log(local.teamId)
@@ -27,7 +28,7 @@ export default function TeamDetails() {
 
     return (
         <View style={styles.container}>
-            <Text>{teams?.filter(team=>team._id==local.teamId)[0].name}</Text>
+            <Text>{teams?.filter(team => team._id == local.teamId)[0].name}</Text>
             <ScrollView>
                 {details?.map(detail => <TeamDetailsTable key={detail._id} data={detail} />)}
             </ScrollView>
@@ -78,7 +79,7 @@ const TeamDetailsTable = ({ data }) => {
                 {data.setList.map((s) => <SetlistDetailsRecord key={s.songName} songName={s.songName} songKey={s.key} bpm={s.bpm} />)}
             </View>
             <View style={[customStyles.section, customStyles.horizontalSection]}>
-                {data.audio.map(audio=><AudioCard key={audio.audioName} title={audio.audioName} link={audio.uri} />)}
+                {data.audio.map(audio => <AudioCard key={audio.audioName} title={audio.audioName} link={audio.uri} />)}
             </View>
         </View>
     )
@@ -149,7 +150,7 @@ const SetlistDetailsRecord = ({ songName, bpm, songKey }) => {
 
 const AudioCard = ({ title, link }: { title: string, link: string }) => {
 
-    const [sound, setSound] = useState<Audio.Sound | undefined>();
+    const [soundPlaying, setSoundPlaying] = useState<boolean>(false);
 
     const customStyles = StyleSheet.create({
         card: {
@@ -164,28 +165,32 @@ const AudioCard = ({ title, link }: { title: string, link: string }) => {
         }
     })
 
-    async function playSound() {
-        console.log('Loading Sound');
-            const { sound } = await Audio.Sound.createAsync({uri:link}
-            );
-            setSound(sound);
     
-            console.log('Playing Sound');
-            await sound.playAsync();
+    const playbackObject  = useRef(new Audio.Sound())
+
+    async function playSound(){
+        const status = await playbackObject.current.getStatusAsync()
+        if(!status.isLoaded){
+            await playbackObject.current.loadAsync({ uri: link })
+        }
+        setSoundPlaying(true)
+        return await playbackObject.current.playAsync()
     }
 
-    useEffect(() => {
-        return sound
-            ? () => {
-                console.log('Unloading Sound');
-                sound.unloadAsync();
-            }
-            : undefined;
-    }, [sound]);
+    async function pauseSound(){
+        setSoundPlaying(false)
+        console.log("pausing")
+        const status = await playbackObject.current.getStatusAsync()
+        let pause
+        if(status.isLoaded){
+            pause = await playbackObject.current.pauseAsync()
+        }   
+        return pause
+    }
 
     return (
-        <Pressable onPress={playSound} style={customStyles.card}>
-            <MaterialIcons name="play-circle" size={24} color={"#fff"}/>
+        <Pressable onPress={soundPlaying ? pauseSound : playSound} style={customStyles.card}>
+            <MaterialIcons name={soundPlaying ? "pause-circle" : "play-circle"} size={24} color={"#fff"} />
             <Text>{title}</Text>
         </Pressable>
     )

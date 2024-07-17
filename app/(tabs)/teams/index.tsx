@@ -28,7 +28,7 @@ export default function TeamsScreen() {
     <View style={styles.container}>
       <View>
         <Text style={styles.title}>Your teams</Text>
-        {teams && teams.map(team => <TeamCard title={team.name} link={`/(tabs)/teams/team-details/?teamId=${team._id}`} />)}
+        {teams && teams.map(team => <TeamCard key={team.name} title={team.name} link={`/(tabs)/teams/team-details/?teamId=${team._id}`} />)}
         {/* <TeamCard title="Worship" link="/(tabs)/teams/team-details" /> */}
       </View>
       <View>

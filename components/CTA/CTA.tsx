@@ -4,7 +4,7 @@ import { Text, View } from '@/components/Themed';
 import { router } from "expo-router"
 import { StyleSheet } from "react-native";
 
-const CTA = ({action, text}: {action: ()=>void, text: string}): React.JSX.Element => {
+const CTA = ({action, text}: {action: ()=>void, text: string | number}): React.JSX.Element => {
 
     const customStyles = StyleSheet.create({
       CTA: {

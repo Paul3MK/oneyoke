@@ -83,8 +83,7 @@ export default defineSchema({
           v.object({
             itemName: v.string(),
             itemSubtitle: v.string(),
-            itemStart: v.string(),
-            itemEnd: v.string()
+            itemDuration: v.string()
           })
         )
       })
@@ -139,5 +138,12 @@ export default defineSchema({
       v.literal("other")
     ),
     details: v.string()
+  }),
+
+  files: defineTable({
+    format: v.string(),
+    author: v.string(), //change to user id later
+    body: v.string(),
+    fileName: v.optional(v.string())
   })
 });           

@@ -29,17 +29,17 @@ export default function PrayerRequestScreen() {
 
     const onSubmit = (data: prayerRequestFormData) => {
         createPrayerRequest({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        emailAddress: data.emailAddress,
-        phoneNumber: data.phoneNumber,
-        details: data.details,
-        category: data.category
-    })
-    setTimeout(()=>{
-        router.back()
-    }, 1000)
-}    
+            firstName: data.firstName,
+            lastName: data.lastName,
+            emailAddress: data.emailAddress,
+            phoneNumber: data.phoneNumber,
+            details: data.details,
+            category: data.category
+        })
+        setTimeout(() => {
+            router.back()
+        }, 1000)
+    }
 
     return (
         <ScrollView style={styles.container}>
@@ -121,8 +121,8 @@ export default function PrayerRequestScreen() {
 
                                 )}
                                 name="category"
-                                />
-                    </View>
+                            />
+                        </View>
                     </View>
                     <View style={styles.formSection}>
                         <View style={styles.inputField}>

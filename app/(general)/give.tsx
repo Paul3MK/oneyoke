@@ -100,7 +100,7 @@ const GivingTierEntry = ({ amount, name }: { amount: number, name: string }) => 
         <Pressable style={({pressed})=>pressed ? [customStyles.card, customStyles.faded] : customStyles.card}>
             <View style={{backgroundColor: "#ffffff00"}}>
                 <Text style={customStyles.heading}>$ {amount}</Text>
-                <Text style={customStyles.smallText}>/month</Text>
+                <Text style={customStyles.smallText}>monthly</Text>
             </View>
             <Text style={customStyles.text}>{name}</Text>
         </Pressable>

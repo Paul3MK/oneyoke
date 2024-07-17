@@ -25,7 +25,7 @@ export default function HomeScreen() {
       <View style={styles.section}>
         <Text style={styles.heading}>Upcoming Events</Text>
         <ScrollView contentContainerStyle={styles.eventTrack} horizontal>
-        { eventsList && eventsList.slice(0,3).map(event=><EventCard image={{uri: event.image}} linkTo={event._id} title={event.name} date={event.date} />)}
+        { eventsList && eventsList.slice(0,3).map(event=><EventCard key={event._id} image={{uri: event.image}} linkTo={event._id} title={event.name} date={event.date} />)}
         </ScrollView>
       </View>
       {/* <Image source={{ uri: "https://images.unsplash.com/photo-1474649107449-ea4f014b7e9f?q=80&w=640&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" }} resizeMode='cover' style={{ height: 200, width: 200 }} /> */}

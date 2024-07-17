@@ -15,10 +15,12 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as events from "../events.js";
+import type * as files from "../files.js";
 import type * as prayerRequests from "../prayerRequests.js";
 import type * as teamEvents from "../teamEvents.js";
 import type * as teams from "../teams.js";
 import type * as users from "../users.js";
+import type * as worshipService from "../worshipService.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -30,10 +32,12 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   events: typeof events;
+  files: typeof files;
   prayerRequests: typeof prayerRequests;
   teamEvents: typeof teamEvents;
   teams: typeof teams;
   users: typeof users;
+  worshipService: typeof worshipService;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

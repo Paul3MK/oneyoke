@@ -63,6 +63,12 @@ export default function TabLayout() {
         options={{
           title: "Schedule"
         }}/>
+      <Tabs.Screen
+      name="services"
+      options={{
+        title: "Services",
+        headerShown: false
+      }}/>
     </Tabs>
   );
 }
