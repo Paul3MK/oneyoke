@@ -7,6 +7,8 @@ import CTA from "@/components/CTA/CTA"
 import { useRoleStore } from "@/store/central"
 import { MaterialIcons } from "@expo/vector-icons"
 import { useTheme } from "@react-navigation/native"
+import { useQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
 
 
 const roleData = [
@@ -28,6 +30,13 @@ export default function SpecifyRolesScreen() {
         member: string
     }
 
+    const roles = useQuery(api.roles.get)!
+    const users = useQuery(api.users.get)!
+
+    const storedRoles = useRoleStore(state => state.roles)
+    const add = useRoleStore(state => state.addRole)
+    const remove = useRoleStore(state => state.removeRole)
+
     const { control, handleSubmit } = useForm<IAddRole>({
         defaultValues: {
             roleName: "",
@@ -37,7 +46,7 @@ export default function SpecifyRolesScreen() {
 
     const onSubmit = () => add({
         roleName: role,
-        member: user
+        members: user
     })
 
 
@@ -52,45 +61,43 @@ export default function SpecifyRolesScreen() {
         }
     })
 
-    const roles = useRoleStore(state => state.roles)
-    const add = useRoleStore(state => state.addRole)
-    const remove = useRoleStore(state => state.removeRole)
-
     return (
         <View>
-            <Controller
-                control={control}
-                name="roleName"
-                render={({ field: { onChange, onBlur, value } }) => 
-                <Dropdown
-                    data={roleData}
-                    valueField={"value"}
-                    labelField={"label"}
-                    onChange={(item)=>setRole(item.label)}
-                    style={customStyle.dropdown}
-                />}
-            />
-            <Controller 
-            control={control}
-            name="member"
-            render={()=><Dropdown
-                data={userData}
-                valueField={"value"}
-                labelField={"label"}
-                onChange={(item) => setUser(item.label)}
-                style={customStyle.dropdown}
-            />}
-            />
+            <View>
+                <Controller
+                    control={control}
+                    name="roleName"
+                    render={({ field: { onChange, onBlur, value } }) =>
+                        <Dropdown
+                            data={roles}
+                            valueField={"_id"}
+                            labelField={"roleName"}
+                            onChange={(item) => setRole(item.roleName)}
+                            style={customStyle.dropdown}
+                        />}
+                />
+                <Controller
+                    control={control}
+                    name="member"
+                    render={() => <Dropdown
+                        data={users}
+                        valueField={"_id"}
+                        labelField={"firstName"}
+                        onChange={(item) => setUser(`${item.firstName} ${item.lastName}`)}
+                        style={customStyle.dropdown}
+                    />}
+                />
+            </View>
             <CTA text="Add role" action={handleSubmit(onSubmit)} />
 
             <View>
-                {roles.map(role => (<RoleRecord roleName={role.roleName} member={role.member}/>))}
+                {storedRoles.map(role => (<RoleRecord key={role.roleName} roleName={role.roleName} member={role.member} />))}
             </View>
         </View>
     )
 }
 
-const RoleRecord = ({roleName, member}: {roleName: string, member: string}) => {
+const RoleRecord = ({ roleName, members }: { roleName: string, members: string[] }) => {
 
     const theme = useTheme()
 
@@ -108,10 +115,10 @@ const RoleRecord = ({roleName, member}: {roleName: string, member: string}) => {
         }
     })
 
-    return(
+    return (
         <View style={customStyle.wrapper}>
-            <Text style={customStyle.text}>{roleName} - {member}</Text>
-            <MaterialIcons name="delete" size={24} color={theme.dark ? "#fff" : "#000"} onPress={()=>remove(member, roleName)}/>
+            <Text style={customStyle.text}>{roleName} - {members}</Text>
+            <MaterialIcons name="remove-circle-outline" size={24} color={theme.dark ? "#fff" : "#000"} onPress={() => remove(members, roleName)} />
         </View>
     )
 }

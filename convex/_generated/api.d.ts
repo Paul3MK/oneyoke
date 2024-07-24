@@ -17,10 +17,12 @@ import type {
 import type * as events from "../events.js";
 import type * as files from "../files.js";
 import type * as prayerRequests from "../prayerRequests.js";
+import type * as roles from "../roles.js";
 import type * as teamEvents from "../teamEvents.js";
 import type * as teams from "../teams.js";
 import type * as users from "../users.js";
 import type * as worshipService from "../worshipService.js";
+import type * as worshipSongs from "../worshipSongs.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -34,10 +36,12 @@ declare const fullApi: ApiFromModules<{
   events: typeof events;
   files: typeof files;
   prayerRequests: typeof prayerRequests;
+  roles: typeof roles;
   teamEvents: typeof teamEvents;
   teams: typeof teams;
   users: typeof users;
   worshipService: typeof worshipService;
+  worshipSongs: typeof worshipSongs;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

@@ -1,13 +1,14 @@
+import { Id } from "@/convex/_generated/dataModel"
 import { create } from "zustand"
 
 type RoleState = {
     roles: {
-        roleName: string,
-        member: string
+        roleName: Id<"roles">,
+        members: Id<"users">[]
     }[],
     addRole: (newRole: {
         roleName: string,
-        member: string
+        members: string[]
     }) => void,
     removeRole: (name: string, position: string) => void 
 }
@@ -27,7 +28,7 @@ type SectionState = {
 export const useRoleStore = create<RoleState>()((set)=>({
     roles: [],
     addRole: (newRole)=>set(state=>({roles: [...state.roles, newRole]})),
-    removeRole: (name, position) => set(state=>({roles: state.roles.filter(role=>role.roleName!=position && role.member!=name)}))
+    removeRole: (name, position) => set(state=>({roles: state.roles.filter(role=>role.roleName!=position && role.members[0]!=name)}))
 }))
 
 export const useSectionStore = create<SectionState>()(set=>({

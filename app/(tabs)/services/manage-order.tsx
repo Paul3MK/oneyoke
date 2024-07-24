@@ -9,6 +9,17 @@ import { Dropdown } from "react-native-element-dropdown";
 import CTA from "@/components/CTA/CTA";
 import { Controller, useForm } from "react-hook-form";
 import { useSectionStore } from "@/store/central";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+
+type SectionType = {
+    sectionName: string,
+    sectionContent: {
+        title: string,
+        subtitle: string,
+        duration: string
+    }[]
+}
 
 export default function ManageOrderScreen() {
 
@@ -25,21 +36,21 @@ export default function ManageOrderScreen() {
 
     // const [sections, setSections] = useState()
 
-    const sections = useSectionStore(state=>state.sections)
+    const sections = useSectionStore(state => state.sections)
 
     return (
         <BottomSheetModalProvider>
             <View style={style.container}>
                 <View style={style.section}>
-                    <Text>Sections go here</Text>
-                    <OrderSection items={sections}/>
+                    {sections.length > 0 &&
+                        <OrderSections sections={sections} />
+                    }
                 </View>
                 <View style={style.section}>
                     <Pressable style={style.createWrapper} onPress={handlePresentModalPress}>
                         <Text>Add a new section</Text>
                     </Pressable>
                 </View>
-                <Text>rfewfw</Text>
                 <BottomSheetModal ref={bottomSheetModalRef} onChange={handleSheetChanges} snapPoints={snapPoints} style={style.sheet} backgroundStyle={{ backgroundColor: "#333" }}>
                     <BottomSheetView style={style.sheetView}>
                         <CreateSection />
@@ -74,11 +85,14 @@ const style = StyleSheet.create({
     }
 })
 
-const OrderSection = ({ items }: { items?: any[] }) => {
+const OrderSections = ({ sections }: { sections?: SectionType[] }) => {
 
     const theme = useTheme()
 
     const customStyle = StyleSheet.create({
+        wrapper: {
+            gap: 8
+        },
         card: {
             padding: 8,
             borderRadius: 2,
@@ -89,19 +103,37 @@ const OrderSection = ({ items }: { items?: any[] }) => {
             fontSize: 18,
             fontFamily: "SplineSans_400Regular",
             color: theme.dark ? "#fff" : "#000"
+        },
+        itemRecord: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "flex-end"
+        },
+        itemDescription: {
+
+        },
+        itemDuration: {
+
         }
     })
 
     return (
-        <View style={customStyle.card}>
-            {items!.map(item=><View>
-                <Text>{item.sectionName}</Text>
+        <View style={customStyle.wrapper}>
+            {sections!.map(section => <View style={customStyle.card}>
+                <Text style={customStyle.cardHeading}>{section.sectionName}</Text>
+                {typeof section.sectionContent != "undefined" && section.sectionContent!.map(item => <View style={customStyle.itemRecord}>
+                    <View style={customStyle.itemDescription}>
+                        <Text>{item.title}</Text>
+                        <Text>{item.subtitle}</Text>
+                    </View>
+                    <Text>{toMinutes(parseInt(item.duration))}</Text>
+                </View>)}
             </View>)}
         </View>
     )
 }
 
-const OrderItem = ({title, subtitle, duration}) => {
+const OrderItem = ({ title, subtitle, duration }) => {
     const customStyle = StyleSheet.create({
         wrapper: {
             padding: 8,
@@ -128,7 +160,7 @@ const OrderItem = ({title, subtitle, duration}) => {
         <View style={customStyle.wrapper}>
             <Text style={customStyle.title}>{title}</Text>
             <Text style={customStyle.subtitle}>{subtitle}</Text>
-            <Text style={customStyle.duration}>{duration}</Text>
+            <Text style={customStyle.duration}>{toMinutes(duration)}</Text>
         </View>
     )
 }
@@ -136,7 +168,7 @@ const OrderItem = ({title, subtitle, duration}) => {
 const CreateSection = () => {
 
     const theme = useTheme()
-    const addSection = useSectionStore(state=>state.addSection)
+    const addSection = useSectionStore(state => state.addSection)
 
     const [isAdding, setIsAdding] = useState<boolean>(false)
     const [itemType, setItemType] = useState<string>("")
@@ -144,14 +176,11 @@ const CreateSection = () => {
     const [newItem, setNewItem] = useState<null | {}>(null)
     const [items, setItems] = useState<any[]>([])
 
-    type SectionCreationType = {
-        sectionName: string,
-        sectionOrder: {}[]
-    }
+    const songs = useQuery(api.worshipSongs.get)
 
-    const { register, handleSubmit, control } = useForm<SectionCreationType>({
+    const { register, handleSubmit, control } = useForm<SectionType>({
         defaultValues: {
-            sectionOrder: [],
+            sectionContent: [],
             sectionName: ""
         }
     })
@@ -162,8 +191,8 @@ const CreateSection = () => {
     ]
 
     const songData = [
-        { songName: "Firm Foundation", defaultBpm: 98, defaultKey: "B" },
-        { songName: "Adonai", defaultBpm: 80, defaultKey: "D" }
+        { songName: "Firm Foundation", defaultBpm: 98, defaultKey: "B", duration: 540 },
+        { songName: "Adonai", defaultBpm: 80, defaultKey: "D", duration: 480 }
     ]
 
     const customStyle = StyleSheet.create({
@@ -181,7 +210,7 @@ const CreateSection = () => {
             paddingTop: 8,
             paddingBottom: 8,
             marginBottom: 8,
-            borderWidth: 1,
+            borderBottomWidth: 1,
             borderBottomColor: "#444"
         },
         header: {
@@ -224,20 +253,20 @@ const CreateSection = () => {
     return (
         <View style={customStyle.createSectionWrapper}>
             <Controller
-            control={control}
-            name="sectionName"
-            render={({field: {onChange}})=><TextInput style={customStyle.sectionName} autoFocus placeholder="Section name..." placeholderTextColor={"#444"} onChangeText ={onChange} />}
+                control={control}
+                name="sectionName"
+                render={({ field: { onChange } }) => <TextInput style={customStyle.sectionName} autoFocus placeholder="Section name..." placeholderTextColor={"#444"} onChangeText={onChange} />}
             />
             <ScrollView style={customStyle.content}>
                 <View style={customStyle.header}>
                     <Text style={customStyle.heading}>Add item</Text>
                     <Controller
-                    control={control}
-                    name="sectionOrder"
-                    render={({field: {onChange}})=><MaterialIcons name={isAdding ? "check" : "add"} size={24} color={"#fff"} onPress={isAdding ? () => { setIsAdding(false); setItems([...items, {...newItem, id: items.length + 1}]); return onChange([...items, {...newItem, id: items.length + 1}]) } : () => setIsAdding(true)} />}/>
+                        control={control}
+                        name="sectionContent"
+                        render={({ field: { onChange } }) => <MaterialIcons name={isAdding ? "check" : "add"} size={24} color={"#fff"} onPress={isAdding ? () => { setIsAdding(false); setItems([...items, { ...newItem, id: items.length + 1 }]); return onChange([...items, { ...newItem, id: items.length + 1 }]) } : () => {setIsAdding(true); return setNewItem({})}} />} />
                 </View>
                 {items.length > 0 &&
-                    items.map(item => <OrderItem key={item.id} title={item.title} subtitle={item.subtitle} duration={item.duration}/>)
+                    items.map(item => <OrderItem key={item.id} title={item.title} subtitle={item.subtitle} duration={item.duration} />)
                 }
                 {isAdding &&
                     <View>
@@ -248,12 +277,14 @@ const CreateSection = () => {
                                 labelField={"label"}
                                 valueField={"value"}
                                 onChange={(item) => setItemType(item.value)}
+                                value={itemType}
                                 style={customStyle.dropdown}
                                 selectedTextStyle={{ color: theme.dark ? "#fff" : "#000", fontFamily: "SplineSans_400Regular" }}
                                 containerStyle={{ backgroundColor: "#000" }}
                                 itemTextStyle={{ color: "#fff" }}
                                 activeColor="#444"
                                 inputSearchStyle={{ color: "#fff" }}
+                                itemContainerStyle={{backgroundColor: "#f00"}}
                             />
                         </View>
                         {itemType == "song" &&
@@ -264,13 +295,14 @@ const CreateSection = () => {
                                     data={songData}
                                     labelField={"songName"}
                                     valueField={"songName"}
-                                    onChange={() => { }}
+                                    onChange={(item) => setNewItem({ title: item.songName, subtitle: `${item.defaultKey} - ${item.defaultBpm}bpm`, duration: item.duration })}
                                     style={customStyle.dropdown}
                                     selectedTextStyle={{ color: theme.dark ? "#fff" : "#000", fontFamily: "SplineSans_400Regular" }}
                                     containerStyle={{ backgroundColor: "#000" }}
                                     itemTextStyle={{ color: "#fff" }}
                                     activeColor="#444"
                                     inputSearchStyle={{ color: "#fff" }}
+                                    value={newItem?.title}
                                 />
                             </View>}
                         {itemType == "other" &&
@@ -322,4 +354,18 @@ const SectionItemChips = () => {
             </Pressable>
         </View>
     )
+}
+
+function toMinutes(duration: number) {
+    const raw = duration / 60
+    const min = raw.toString().slice(0)
+    const _sec = (duration % 60).toString()
+    let sec
+    if (_sec.length < 2) {
+        sec = `0${_sec}`
+    } else {
+        sec = _sec
+    }
+
+    return `${min}:${sec}`
 }

@@ -71,7 +71,7 @@ export default defineSchema({
     roles: v.optional(
       v.array(
         v.object({
-          roleName: v.id("role"),
+          roleName: v.id("roles"),
           members: v.array(v.id("users"))
         })
       )
@@ -88,12 +88,12 @@ export default defineSchema({
         )
       })
     ),
-    setList: v.array(
+    setList: v.optional(v.array(
       v.object({
         songName: v.string(),
         key: v.string(),
         bpm: v.number()
-      })
+      }))
     ),
     files: v.optional(v.array(
       v.object({
@@ -106,7 +106,8 @@ export default defineSchema({
   worshipSong: defineTable({
     songName: v.string(),
     defaultKey: v.string(),
-    defaultBpm: v.string()
+    defaultBpm: v.string(),
+    duration: v.optional(v.number())
   }),
 
   teamRole: defineTable({
@@ -145,5 +146,9 @@ export default defineSchema({
     author: v.string(), //change to user id later
     body: v.string(),
     fileName: v.optional(v.string())
+  }),
+
+  roles: defineTable({
+    roleName: v.string()
   })
 });           
